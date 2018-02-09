@@ -837,8 +837,11 @@ function displayArr() {
     let track = seq.displayTrack;
     let page = seq.scrollPage;
     let arr = [];
-    let track1 = undefined;
-    let track2 = undefined;
+
+    let track1 = 0;
+    let track2 = 0;
+    let track3 = 0;
+    let track4 = 0;
   
     switch(seq.tracksDisplayed) {
     
@@ -874,8 +877,6 @@ function displayArr() {
     
         case 4:
       
-            let tracck1;
-        
             if (track < 4) {
             
                 track1 = track;
@@ -885,9 +886,9 @@ function displayArr() {
                 track1 = 4;
             }
 
-            let track2 = track1 + 1;
-            let track3 = track1 + 2;
-            let track4 = track1 + 3;
+            track2 = track1 + 1;
+            track3 = track1 + 2;
+            track4 = track1 + 3;
         
             for (let i = 0; i < 64; i++) {
             
