@@ -1,7 +1,8 @@
-#Launchpad Pi Sequencer
+#Launchpad RaspberryPi Sunvox Remote
 
-##about the project:
-This project is a sequencer for drums that is designed to be able to be used with just a Novation Launchpad as the interface, with no keyboard or mouse or screen. It can output midi, but is mainly for outputting triggers for modular synths or other drum machines with analog trigger inputs. It also has clock in and reset in as well as clock out. There is a switch for switching between the internal clock and the clock in jack. There is also a switch to save and shutdown.
+## Based on the work done by noisehack, reworked to be a Sunvox controller specifically.
+
+### ( From noisehack's original readme )
 
 It is designed to run on a Raspberry Pi with node.js and uses a Novation Launchpad. I built and tested this with a Raspberry Pi 3, and a Launchpad MK II, so if you are able to test this on a Raspberry Pi 2 or a different launchpad let me know if it works, it will probably not work with the original launchpad, and not with the launchpad mini in the current state, but should work with the pro version. I used Ubuntu Mate 15.10, and have not tested on other distros, so please let me know if you get it to work with others, or if it doesn't work.
 
