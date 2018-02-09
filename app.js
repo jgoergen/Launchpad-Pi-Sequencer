@@ -188,6 +188,9 @@ function makeMidiOutput(outputs) {
 
 function handleNoteIn(note, velocity) {
 
+    let pad = undefined;
+    let preset = undefined;
+
     console.log("Handle Note In '" + note + ", " + velocity);
 
     if (velocity === 127) {
@@ -208,16 +211,13 @@ function handleNoteIn(note, velocity) {
       
             console.log("button on grid " + pads.indexOf(note));
 
-            let pad = undefined;
-            let preset = undefined;
-
             switch (seq.mode) {
         
                 case 'step':
 
                     console.log("Seq in step mode, getting pad for note " + note);
                     console.log("Pad is " + pads.indexOf(note));
-                    
+
                     pad = pads.indexOf(note);
                     let arr = displayArr();
                     let trackStep = arr[pad];
