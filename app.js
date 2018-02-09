@@ -188,9 +188,6 @@ function makeMidiOutput(outputs) {
 
 function handleNoteIn(note, velocity) {
 
-    let pad = undefined;
-    let preset = undefined;
-
     console.log("Handle Note In '" + note + ", " + velocity);
 
     if (velocity === 127) {
@@ -211,13 +208,16 @@ function handleNoteIn(note, velocity) {
       
             console.log("button on grid " + pads.indexOf(note));
 
+            let pad = undefined;
+            let preset = undefined;
+
             switch (seq.mode) {
         
                 case 'step':
 
                     console.log("Seq in step mode, getting pad for note " + note);
                     console.log("Pad is " + pads.indexOf(note));
-
+                    
                     pad = pads.indexOf(note);
                     let arr = displayArr();
                     let trackStep = arr[pad];
@@ -253,12 +253,12 @@ function handleNoteIn(note, velocity) {
                 case 'midi':
 
                     pad = pads.indexOf(note);
-                    let note = midiOutNotes[seq.displayTrack][1];
-                    note = note.split('');
+                    let notes = midiOutNotes[seq.displayTrack][1];
+                    notes = notes.split('');
 
                     if (pad === 59) {
 
-                        note[0] = note[0] === '0' ? '1' : '0';
+                        notes[0] = notes[0] === '0' ? '1' : '0';
                     }
 
                     for (let i = 0; i < 4; i++) {
@@ -275,11 +275,11 @@ function handleNoteIn(note, velocity) {
 
                         } else if (i > 1 && index !== -1 && index < 10) {
                         
-                            note[i - 1] = index;
+                            notes[i - 1] = index;
                         }
                     }
 
-                    note = note.join('');
+                    notes = notes.join('');
 
                     if (+note <= 127) {
 
