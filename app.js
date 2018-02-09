@@ -4,7 +4,7 @@ const easymidi = require('easymidi');
 const NanoTimer = require('nanotimer');
 const GPIO = require('onoff').Gpio;
 
-const defaults = require('defaults');
+const defaults = require('defaults.js');
 
 //settings
 //colors
@@ -199,11 +199,14 @@ function handleNoteIn(note, velocity) {
     
         if (pads.indexOf(note) !== -1) {//buttons in grid
       
+            let pad = undefined;
+            let preset = undefined;
+
             switch (seq.mode) {
         
                 case 'step':
 
-                    let pad = pads.indexOf(note);
+                    pad = pads.indexOf(note);
                     let arr = displayArr();
                     let trackStep = arr[pad];
                     trackStep = trackStep.split('|');
@@ -214,7 +217,7 @@ function handleNoteIn(note, velocity) {
         
                 case 'bpm':
           
-                    let pad = pads.indexOf(note);
+                    pad = pads.indexOf(note);
 
                     for (let i = 0; i < 4; i++) {
 
@@ -237,7 +240,7 @@ function handleNoteIn(note, velocity) {
 
                 case 'midi':
 
-                    let pad = pads.indexOf(note);
+                    pad = pads.indexOf(note);
                     let note = midiOutNotes[seq.displayTrack][1];
                     note = note.split('');
 
@@ -274,16 +277,16 @@ function handleNoteIn(note, velocity) {
 
                 case 'presetLoad':
 
-                    let pad = pads.indexOf(note);
-                    let preset = presets[pad];
+                    pad = pads.indexOf(note);
+                    preset = presets[pad];
                     seq.tracks = preset.slice(0, 8);
                     seq.lastStep = preset[8];
                     break;
 
                 case 'presetSave':
 
-                    let pad = pads.indexOf(note);
-                    let preset = [];
+                    pad = pads.indexOf(note);
+                    preset = [];
 
                     for (let i = 0; i < seq.tracks.length; i++) {
                         
@@ -322,7 +325,8 @@ function handleNoteIn(note, velocity) {
                     break;
             }
         }
-    updateDisplay();
+
+        updateDisplay();
     }
 }
 
@@ -833,6 +837,8 @@ function displayArr() {
     let track = seq.displayTrack;
     let page = seq.scrollPage;
     let arr = [];
+    let track1 = undefined;
+    let track2 = undefined;
   
     switch(seq.tracksDisplayed) {
     
@@ -846,8 +852,8 @@ function displayArr() {
     
         case 2:
       
-            let track1 = track < 7 ? track : 6;
-            let track2 = track1 + 1;
+            track1 = track < 7 ? track : 6;
+            track2 = track1 + 1;
       
             for (let i = 0; i < 64; i++) {
         
