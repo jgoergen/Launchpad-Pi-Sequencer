@@ -11,7 +11,7 @@ const defaults = require('./defaults.js');
 
 let dark = defaults.dark;
 let darkRunner = defaults.darkRunner;
-let brightRunner = brightRunner.brightRunner;
+let brightRunner = defaults.brightRunner;
 let trackColors = defaults.trackColors.slice();
 
 //midi
