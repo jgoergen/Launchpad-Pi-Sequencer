@@ -188,7 +188,7 @@ function makeMidiOutput(outputs) {
 
 function handleNoteIn(note, velocity) {
 
-    console.log("Handle Node In '" + node + ", " + velocity);
+    console.log("Handle Node In '" + note + ", " + velocity);
 
     if (velocity === 127) {
     
