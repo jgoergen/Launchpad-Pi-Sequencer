@@ -4,7 +4,7 @@ const easymidi = require('easymidi');
 const NanoTimer = require('nanotimer');
 const GPIO = require('onoff').Gpio;
 
-const defaults = require('defaults.js');
+const defaults = require('./defaults.js');
 
 //settings
 //colors
