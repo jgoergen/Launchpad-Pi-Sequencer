@@ -188,16 +188,23 @@ function makeMidiOutput(outputs) {
 
 function handleNoteIn(note, velocity) {
 
+    console.log("Handle Node In '" + node + ", " + velocity);
+
     if (velocity === 127) {
     
-        if (trackPads.indexOf(note) !== -1) {//track change buttons
+        //track change buttons
+
+        if (trackPads.indexOf(note) !== -1) {
+            
 
             seq.displayTrack = trackPads.indexOf(note);
             updateDisplay();
             return;
         }
-    
-        if (pads.indexOf(note) !== -1) {//buttons in grid
+
+        //buttons in grid
+
+        if (pads.indexOf(note) !== -1) {
       
             let pad = undefined;
             let preset = undefined;
