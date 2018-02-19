@@ -11,6 +11,11 @@
   "dependencies": {
     "easymidi": "0.0.2",
     "nanotimer": "^0.3.14",
-    "onoff": "^1.0.4"
+    "onoff": "^1.0.4",
+    "typescript": "^2.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^9.4.6",
+    "@types/onoff": "0.0.27"
   }
 }

@@ -7,4 +7,4 @@ git pull origin master
 npm install
 
 # start node
-node app.js
+node ./dist/app.js
