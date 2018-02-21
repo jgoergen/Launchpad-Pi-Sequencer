@@ -1,25 +1,24 @@
-import defaults from "./defaults";
-import midi from "./midi";
-import display from "./display";
+import Midi from "./Midi";
+import Display from "./Display";
 
-const keyboard: any = () => {
+export default class Keyboard {
 
-    let running: boolean;
-    let toggle: boolean;
-    let mode: string;
+    running: boolean;
+    toggle: boolean;
+    mode: string;
 
-    function init(): void {
+    public init(): void {
 
-        running = false;
-        toggle = true,
-        mode = "normal";
+        this.running = false;
+        this.toggle = true;
+        this.mode = "normal";
     }
 
-    function update(): void {
+    public update(display: Display, midi: Midi): void {
 
-        if (running) {
+        if (this.running) {
 
-            if (toggle) {
+            if (this.toggle) {
 
                 display.setPad(1, display.brightRunner);
 
@@ -28,14 +27,7 @@ const keyboard: any = () => {
                 display.setPad(1, display.darkRunner);
             }
 
-            toggle = !toggle;
+            this.toggle = !this.toggle;
         }
     }
-
-    return {
-        init,
-        update
-    };
 };
-
-export default keyboard;

@@ -1,28 +1,29 @@
 import defaults from "./defaults";
-import midi from "./midi";
+import Midi from "./Midi";
 
-const sequencer: any = () => {
+export default class Sequencer {
 
     // midi
 
-    let channel: number = defaults.channel;
+    midiRef: Midi;
+    channel: number = defaults.channel;
 
     // color settings
 
-    let dark:number = defaults.dark;
-    let darkRunner:number = defaults.darkRunner;
-    let brightRunner:number = defaults.brightRunner;
-    let trackColors:number = defaults.trackColors.slice();
+    dark:number = defaults.dark;
+    darkRunner:number = defaults.darkRunner;
+    brightRunner:number = defaults.brightRunner;
+    trackColors:number = defaults.trackColors.slice();
 
     // translation arrays
 
-    let pads: Array<number> = defaults.pads.slice();
-    let trackPads: Array<number> = defaults.trackPads.slice();
-    let controlPads: Array<number> = defaults.controlPads.slice();
+    pads: Array<number> = defaults.pads.slice();
+    trackPads: Array<number> = defaults.trackPads.slice();
+    controlPads: Array<number> = defaults.controlPads.slice();
 
     // display object
 
-    let lastDisplay: any = {
+    lastDisplay: any = {
         pads: [
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
             -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -32,7 +33,7 @@ const sequencer: any = () => {
         controls: [-1, -1, -1, -1, -1, -1, -1, -1]
     };
 
-    let nextDisplay: any = {
+    nextDisplay: any = {
         pads: [
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -41,93 +42,78 @@ const sequencer: any = () => {
         controls: [0, 0, 0, 0, 0, 0, 0, 0]
     };
 
-    function init(): void {
+    public init(midi: Midi): void {
 
-        // ok
+        this.midiRef = midi;
     }
 
-    function update(): void {
+    public update(): void {
 
         // update pads
 
-        for (let i:number = 0; i < nextDisplay.pads.length; i++) {
+        for (let i:number = 0; i < this.nextDisplay.pads.length; i++) {
 
-            if (lastDisplay.pads[i] !== nextDisplay.pads[i]) {
+            if (this.lastDisplay.pads[i] !== this.nextDisplay.pads[i]) {
 
-                changePad(pads[i], nextDisplay.pads[i]);
-                lastDisplay.pads[i] = nextDisplay.pads[i];
+                this.changePad(this.pads[i], this.nextDisplay.pads[i]);
+                this.lastDisplay.pads[i] = this.nextDisplay.pads[i];
             }
         }
 
         // update tracks ( right buttons )
 
-        for (let i:number = 0; i < nextDisplay.tracks.length; i++) {
+        for (let i:number = 0; i < this.nextDisplay.tracks.length; i++) {
 
-            if (lastDisplay.tracks[i] !== nextDisplay.tracks[i]) {
+            if (this.lastDisplay.tracks[i] !== this.nextDisplay.tracks[i]) {
 
-                changePad(trackPads[i], nextDisplay.tracks[i]);
-                lastDisplay.tracks[i] = nextDisplay.tracks[i];
+                this.changePad(this.trackPads[i], this.nextDisplay.tracks[i]);
+                this.lastDisplay.tracks[i] = this.nextDisplay.tracks[i];
             }
         }
 
         // update controls ( top buttons )
 
-        for (let i:number = 0; i < nextDisplay.controls.length; i++) {
+        for (let i:number = 0; i < this.nextDisplay.controls.length; i++) {
 
-            if (lastDisplay.controls[i] !== nextDisplay.controls[i]) {
+            if (this.lastDisplay.controls[i] !== this.nextDisplay.controls[i]) {
 
-                changeControl(controlPads[i], nextDisplay.controls[i]);
-                lastDisplay.controls[i] = nextDisplay.controls[i];
+                this.changeControl(this.controlPads[i], this.nextDisplay.controls[i]);
+                this.lastDisplay.controls[i] = this.nextDisplay.controls[i];
             }
         }
     }
 
-    function changePad (pad: any, color: any): void {
+    public changePad (pad: any, color: any): void {
 
         // could change to take channel as argument
 
-        midi.send(
-            "noteon",
-            {
-                note: pad,
-                velocity: color,
-                channel: channel
-            });
+        this.midiRef.sendNote(
+            pad,
+            color,
+            this.channel
+        );
     }
 
-    function changeControl(pad: any, color: any): void {
+    public changeControl(pad: any, color: any): void {
 
-        midi.send(
-            "cc",
-            {
-                controller: pad,
-                value: color,
-                channel: channel
-            });
+        this.midiRef.sendCC(
+            pad,
+            color,
+            this.channel);
     }
 
-    function setPad(which: number, value: number): void {
+    public setPad(which: number, value: number): void {
 
-        nextDisplay.pads[which] = value;
+        this.nextDisplay.pads[which] = value;
     }
 
-    function setTrackPad(which: number, value: number): void {
+    public setTrackPad(which: number, value: number): void {
 
-        nextDisplay.trackPads[which] = value;
+        this.nextDisplay.trackPads[which] = value;
     }
 
-    function setControlPad(which: number, value: number): void {
+    public setControlPad(which: number, value: number): void {
 
-        nextDisplay.controlPads[which] = value;
+        this.nextDisplay.controlPads[which] = value;
     }
-
-    return {
-        init,
-        update,
-        setPad,
-        setTrackPad,
-        setControlPad
-    };
 };
-
-export default sequencer;

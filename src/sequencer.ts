@@ -1,32 +1,32 @@
 import defaults from "./defaults";
-import midi from "./midi";
-import display from "./display";
+import Midi from "./Midi";
+import Display from "./Display";
 
-const sequencer: any = () => {
+export default class Sequencer {
 
-    let running: boolean;
-    let toggle: boolean;
-    let mode: string;
-    let tracksDisplayed: number;
-    let scrollPage: number;
-    let displayTrack: number;
-    let curStep: Array<number>;
-    let lastStep: Array<number>;
-    let midiOutNotes: any;
-    let tracks: Array<any>;
+    running: boolean;
+    toggle: boolean;
+    mode: string;
+    tracksDisplayed: number;
+    scrollPage: number;
+    displayTrack: number;
+    curStep: Array<number>;
+    lastStep: Array<number>;
+    midiOutNotes: any;
+    tracks: Array<any>;
 
-    function init(): void {
+    public init(): void {
 
         // initial state
-        running = false;
-        toggle = true,
-        mode = "step";
-        tracksDisplayed = 1;
-        scrollPage = 0;
-        displayTrack = 0;
-        curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
-        lastStep = [63, 63, 63, 63, 63, 63, 63, 63];
-        tracks = [
+        this.running = false;
+        this.toggle = true,
+        this.mode = "step";
+        this.tracksDisplayed = 1;
+        this.scrollPage = 0;
+        this.displayTrack = 0;
+        this.curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
+        this.lastStep = [63, 63, 63, 63, 63, 63, 63, 63];
+        this.tracks = [
             defaults.emptyTrackData.slice(),
             defaults.emptyTrackData.slice(),
             defaults.emptyTrackData.slice(),
@@ -36,12 +36,12 @@ const sequencer: any = () => {
             defaults.emptyTrackData.slice(),
             defaults.emptyTrackData.slice()
         ];
-        midiOutNotes = defaults.midiOutNotes.slice();
+        this.midiOutNotes = defaults.midiOutNotes.slice();
     }
 
-    function update(): void {
+    public update(display: Display, midi: Midi): void {
 
-        if (running) {
+        if (this.running) {
 
             let triggersToSend: Array<number> = [];
 
@@ -51,14 +51,14 @@ const sequencer: any = () => {
 
                 // advance steps
 
-                curStep[i] =
-                    curStep[i] >= lastStep[i] ?
+                this.curStep[i] =
+                    this.curStep[i] >= this.lastStep[i] ?
                         0 :
-                        curStep[i] + 1;
+                        this.curStep[i] + 1;
 
                 // is there note data in this step ( for this track )
 
-                if (tracks[i][curStep[i]]) {
+                if (this.tracks[i][this.curStep[i]]) {
 
                     triggersToSend.push(i);
                 }
@@ -67,19 +67,12 @@ const sequencer: any = () => {
             for (let i: number = 0; i < triggersToSend.length; i++) {
 
                 midi.sendNote(
-                    + midiOutNotes[triggersToSend[i]][1],
+                    + this.midiOutNotes[triggersToSend[i]][1],
                     127,
-                    midiOutNotes[triggersToSend[i]][0]);
+                    this.midiOutNotes[triggersToSend[i]][0]);
             }
 
-            toggle = !toggle;
+            this.toggle = !this.toggle;
         }
     }
-
-    return {
-        init,
-        update
-    };
 };
-
-export default sequencer;

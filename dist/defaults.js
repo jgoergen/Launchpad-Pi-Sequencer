@@ -1,5 +1,4 @@
 "use strict";
-// 64 empty notes
 exports.__esModule = true;
 var generateEmptyTrackData = function () {
     var result = [];
@@ -8,7 +7,6 @@ var generateEmptyTrackData = function () {
     }
     return result;
 };
-// 8 empty tracks
 var generateEmptyPresetData = function () {
     var result = [
         generateEmptyTrackData(),
@@ -23,7 +21,6 @@ var generateEmptyPresetData = function () {
     ];
     return result;
 };
-// 64 empty preset objects
 var generateEmptyPresetsData = function () {
     var result = [];
     for (var i = 0; i < 64; i++) {
@@ -87,3 +84,4 @@ var defaults = {
     ]
 };
 exports["default"] = defaults;
+//# sourceMappingURL=defaults.js.map

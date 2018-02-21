@@ -1,64 +1,67 @@
-import { Gpio } from "onoff";
+// import { Gpio } from "onoff";
 
-const gpio: any = () => {
+export default class GPIO {
 
-    let outputPins: Array<number>;
-    let triggerGPIO: any;
-    let clockOut: any;
-    let clockIn: any;
-    let clockSwitch: any;
-    let resetIn: any;
-    let powerSwitch: any;
+    outputPins: Array<number>;
+    triggerGPIO: any;
+    clockOut: any;
+    clockIn: any;
+    clockSwitch: any;
+    resetIn: any;
+    powerSwitch: any;
 
-    function init(shutdown: any, handleClockSwitch: any, handleResetIn: any): void {
+    public init(shutdown: any, handleClockSwitch: any, handleResetIn: any): void {
+
+        // TODO finish gpio
+        return;
 
         // configure pins
 
         console.log("Configuring GPIO Pins");
-        outputPins = [18, 4, 17, 23, 25, 5, 13, 21];
+        this.outputPins = [18, 4, 17, 23, 25, 5, 13, 21];
 
-        triggerGPIO = outputPins.map(
+        this.triggerGPIO = this.outputPins.map(
             (pin) =>
-                new Gpio(pin, "out"));
+                null); // new Gpio(pin, "out"));
 
-        clockOut = new Gpio(27, "out");
-        clockIn = new Gpio(24, "in", "falling");
-        clockSwitch = new Gpio(6, "in", "both");
-        resetIn = new Gpio(16, "in", "falling");
-        powerSwitch = new Gpio(20, "in", "rising");
+        this.clockOut = null; // new Gpio(27, "out");
+        this.clockIn = null; // new Gpio(24, "in", "falling");
+        this.clockSwitch = null; // new Gpio(6, "in", "both");
+        this.resetIn = null; // new Gpio(16, "in", "falling");
+        this.powerSwitch = null; // new Gpio(20, "in", "rising");
 
-        triggerGPIO.forEach(
-            (pin) => {
+        this.triggerGPIO.forEach(
+            (pin: any) => {
 
-                pin.write(
-                    1,
-                    (err) => {
+                if (pin) {
 
-                    if (err) {
+                    pin.write(
+                        1,
+                        (err: any) => {
 
-                        console.log(err);
-                    }
-                });
+                        if (err) {
+
+                            console.log(err);
+                        }
+                    });
+                }
             });
 
-        clockOut.write(
-            1,
-            (err) => {
+        if (this.clockOut) {
 
-            if (err) {
-                console.log(err);
-            }
-        });
+            this.clockOut.write(
+                1,
+                (err: any) => {
 
-        powerSwitch.watch(shutdown);
-        clockSwitch.read(handleClockSwitch);
-        clockSwitch.watch(handleClockSwitch);
-        resetIn.watch(handleResetIn);
+                if (err) {
+                    console.log(err);
+                }
+            });
+        }
+
+        this.powerSwitch.watch(shutdown);
+        this.clockSwitch.read(handleClockSwitch);
+        this.clockSwitch.watch(handleClockSwitch);
+        this.resetIn.watch(handleResetIn);
     }
-
-    return {
-        init
-    };
 };
-
-export default gpio;

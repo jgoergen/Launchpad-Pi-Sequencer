@@ -1,13 +1,18 @@
-import * as fs from 'fs';
-import { exec } from "child_process";
-import NanoTimer from "nanotimer";
+import * as fs from "fs";
+const NanoTimer: any = require("nanotimer");
 
 import defaults from "./defaults";
-import keyboard from "./keyboard";
-import sequencer from "./sequencer";
-import display from "./display";
-import midi from "./midi";
-import gpio from "./gpio";
+import Keyboard from "./Keyboard";
+import Sequencer from "./Sequencer";
+import Display from "./Display";
+import Midi from "./Midi";
+import GPIO from "./GPIO";
+
+let midi: Midi = new Midi();
+let gpio: GPIO = new GPIO();
+let display: Display = new Display();
+let keyboard: Keyboard = new Keyboard();
+let sequencer: Sequencer = new Sequencer();
 
 let settingsHeld: boolean = false;
 let presetsHeld: boolean = false;
@@ -18,41 +23,49 @@ let pads: Array<number> = defaults.pads.slice();
 let trackPads: Array<number> = defaults.trackPads.slice();
 let controlPads: Array<number> = defaults.controlPads.slice();
 
-//presets
+// presets
 
-let presets = defaults.presets.slice();
-let loadDisplay = defaults.loadDisplay.slice();
-let saveDisplay = defaults.saveDisplay.slice();
+let presets: Array<any> = defaults.presets.slice();
+let loadDisplay: Array<boolean> = defaults.loadDisplay.slice();
+let saveDisplay: Array<boolean> = defaults.saveDisplay.slice();
 
 // initialization
 
 console.log("Initializing");
 gpio.init(
-    shutdown, 
-    handleClockSwitch, 
-    handleResetIn,
-    handleClock);
+    shutdown,
+    handleClockSwitch,
+    handleResetIn);
 midi.init(
     handleMidiNoteOn,
-    handleMidiCCmessage);
-display.init();
+    handleMidiCCmessage,
+    handleClock);
+display.init(midi);
 keyboard.init();
 sequencer.init();
 
 presets = loadPresets();
-let timer = new NanoTimer();
+let timer: any = new NanoTimer();
 
 function loadPresets():any {
 
-    let fileData: any = 
-        fs.readFileSync(
-            __dirname + "/presets.json", 
-            "utf8");
+    let presetFile: string = __dirname + "/presets.json";
 
-    return JSON.parse(fileData);
+    if (fs.existsSync(presetFile)) {
+
+        let fileData: any =
+            fs.readFileSync(
+                presetFile,
+                "utf8");
+
+        return JSON.parse(fileData);
+    } else {
+
+        return "";
+    }
 }
 
-function shutdown() {
+function shutdown(): void {
 
     console.log("Shutting down.");
 
@@ -60,20 +73,20 @@ function shutdown() {
     powerSwitch.unwatch();
 
     fs.writeFile(
-        __dirname + '/midiConfig.json', 
-        JSON.stringify(midiOutNotes), 
+        __dirname + '/midiConfig.json',
+        JSON.stringify(midiOutNotes),
         function(err) {
-            
+
             if (err) {
                 console.log(err);
         }
 
         console.log('midi settings saved');
         fs.writeFile(
-            __dirname + '/presets.json', 
-            JSON.stringify(presets), 
+            __dirname + '/presets.json',
+            JSON.stringify(presets),
             function(err) {
-                
+
                 if (err) {
                     console.log(err);
                 }
@@ -81,12 +94,12 @@ function shutdown() {
                 console.log('presets saved');
                 console.log('shutting down system');
                 exec(
-                    '/sbin/shutdown -h now', 
+                    '/sbin/shutdown -h now',
                     function(error, stdout, stderr) {
 
                         console.log('stdout: ' + stdout);
                         console.log('stderr: ' + stderr);
-                        
+
                         if (error !== null) {
                             console.log('exec error: ' + error);
                         }
@@ -96,40 +109,40 @@ function shutdown() {
     */
 }
 
-function handleClockSwitch(err, value) {
-  
+function handleClockSwitch(err: any, value: any): void {
+
     /*
     if (err) {
-    
+
         console.log(err);
     }
-  
+
     seq.clockSource = value === 0 ? 'external' : 'internal';
-  
+
     if (seq.clockSource === 'external') {
-    
+
         if (seq.timerRunning) {
-      
+
             timer.clearInterval();
             seq.timerRunning = false;
         }
-    
+
         if (!seq.clockWathced) {
-      
-            
+
+
             seq.clockWathced = true;
         }
-  
+
     } else {
-    
+
         if (seq.clockWathced) {
-      
-            
+
+
             seq.clockWathced = false;
         }
-    
+
         if (seq.running && !seq.timerRunning) {
-      
+
             let speed = 60000 / ((+seq.bpm / 10) * 4);
             speed += 'm';
             timer.setInterval(advanceSeq, '', speed);
@@ -138,14 +151,14 @@ function handleClockSwitch(err, value) {
     }*/
 }
 
-function handleResetIn(err, value) {
-  
+function handleResetIn(err: any, value: any): void {
+
     /*
     if (err) {
-    
+
         console.log(err);
     }
-  
+
     seq.curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
     updateDisplay();
     */
@@ -153,26 +166,26 @@ function handleResetIn(err, value) {
 
 function handleMidiNoteOn(params: any): void {
 
-    let note = params.note;
-    let velocity = params.velocity;
+    let note: any = params.note;
+    let velocity: number = params.velocity;
 
     console.log("Note On : '" + note + "' : " + velocity);
 
     if (velocity === 127) {
-    
-        //track change buttons
+
+        // track change buttons
 
         if (trackPads.indexOf(note) !== -1) {
-    
+
             console.log("track button " + trackPads.indexOf(note));
             changeTrack(trackPads.indexOf(note));
             return;
         }
 
-        //buttons in grid
+        // buttons in grid
 
         if (pads.indexOf(note) !== -1) {
-        
+
             console.log("button on grid " + pads.indexOf(note));
             gridButtonPress(pads.indexOf(note));
         }
@@ -181,58 +194,58 @@ function handleMidiNoteOn(params: any): void {
 
 function handleMidiCCmessage(params: any): void {
 
-    let cc = params.controller;
-    let value = params.value;
+    let cc: number = params.controller;
+    let value: number = params.value;
     console.log("CC change : '" + cc + "' : " + value);
 
     if (value === 127) {
 
         switch (cc) {
-      
-            case controlPads[0]: 
+
+            case controlPads[0] :
 
                 // reset ?
                 // seq.curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
                 break;
 
-            case controlPads[1]: 
+            case controlPads[1] :
 
                 // number of tracks viewed
                 /*
                 if (seq.tracksDisplayed > 7) {
-                
+
                     seq.tracksDisplayed = 1;
-                
+
                 } else {
-                
+
                     seq.tracksDisplayed = seq.tracksDisplayed * 2;
                 }
-                
+
                 seq.scrollPage = 0;
                 */
                 break;
 
-            case controlPads[2]:
+            case controlPads[2] :
 
-                //scroll left
+                // scroll left
                 /*
                 seq.scrollPage--;
                 seq.scrollPage = seq.scrollPage < 0 ? seq.tracksDisplayed - 1 : seq.scrollPage;
                 */
                 break;
 
-            case controlPads[3]:
+            case controlPads[3] :
 
-                //scroll right
+                // scroll right
                 /*
                 seq.scrollPage++;
                 seq.scrollPage = seq.scrollPage >= seq.tracksDisplayed ? 0 : seq.scrollPage;
                 */
                 break;
 
-            case controlPads[4]:
-            
-                //start stop
+            case controlPads[4] :
+
+                // start stop
                 /*
                 if (seq.clockSource === 'internal') {
 
@@ -248,7 +261,7 @@ function handleMidiCCmessage(params: any): void {
                         }
 
                     } else {
-                        
+
                         if (seq.timerRunning) {
                             timer.clearInterval();
                             seq.timerRunning = false;
@@ -258,27 +271,27 @@ function handleMidiCCmessage(params: any): void {
                     }
 
                 } else {
-                
+
                     seq.running = !seq.running;
                 }
                 */
                 break;
 
             case controlPads[5]:
-                
-                //bpm tapped and midi setup if held
+
+                // bpm tapped and midi setup if held
                 /*
                 if (seq.mode === 'bpm' || seq.mode === 'midi') {
 
                     if (seq.mode === 'midi') {
-                    
+
                         fs.writeFile(
-                            __dirname + '/midiConfig.json', 
-                            JSON.stringify(midiOutNotes), 
+                            __dirname + '/midiConfig.json',
+                            JSON.stringify(midiOutNotes),
                             function(err) {
-                            
+
                                 if (err) {
-                            
+
                                     console.log(err);
                                     return;
                                 }
@@ -286,35 +299,35 @@ function handleMidiCCmessage(params: any): void {
                     }
 
                     seq.mode = 'step';
-                
+
                 } else {
-                
+
                     seq.mode = 'bpm';
                 }
-                
+
                 seq.settingsHeld = Date.now();
                 */
                 break;
-            
+
             case controlPads[6]:
-            
-                //last step
-                //seq.mode = seq.mode !== 'lastStep' ? 'lastStep' : 'step';
+
+                // last step
+                // seq.mode = seq.mode !== 'lastStep' ? 'lastStep' : 'step';
                 break;
 
             case controlPads[7]:
-            
-                //presets load tapped and save held
+
+                // presets load tapped and save held
                 /*
                 if (seq.mode === 'presetLoad' || seq.mode === 'presetSave') {
-                
+
                     seq.mode = 'step';
-                
+
                 } else {
-                
+
                     seq.mode = 'presetLoad';
                 }
-                
+
                 seq.presetsHeld = Date.now();
                 */
                 break;
@@ -324,34 +337,34 @@ function handleMidiCCmessage(params: any): void {
 
         /*
         if (cc === controlPads[5] && seq.settingsHeld !== 0) {
-      
+
             if (Date.now() > seq.settingsHeld + 1000) {//midi setup held 1 second
-                
+
                 seq.mode = 'midi';
             }
 
         seq.settingsHeld = 0;
-    
+
         } else if (cc === controlPads[7] && seq.presetsHeld !== 0) {
-        
+
             if (Date.now() > seq.presetsHeld + 1000) {
-            
+
                 seq.mode = 'presetSave';
             }
-            
+
             seq.presetsHeld = 0;
         }
         */
     }
 }
 
-function changeTrack(trackIndex: number) {
+function changeTrack(trackIndex: number): void {
 
-    //seq.displayTrack = trackIndex;
-    //updateDisplay();
+    // seq.displayTrack = trackIndex;
+    // updateDisplay();
 }
 
-function gridButtonPress(button: number) {
+function gridButtonPress(button: number): void {
 
     /*
     if (pads.indexOf(note) !== -1) {
@@ -360,12 +373,12 @@ function gridButtonPress(button: number) {
             let preset = undefined;
 
             switch (seq.mode) {
-        
+
                 case 'step':
 
                     console.log("Seq in step mode, getting pad for note " + note);
                     console.log("Pad is " + pads.indexOf(note));
-                    
+
                     pad = pads.indexOf(note);
                     let arr = displayArr();
                     let trackStep = arr[pad];
@@ -374,9 +387,9 @@ function gridButtonPress(button: number) {
                     let step = trackStep[1];
                     seq.tracks[track][step] = !seq.tracks[track][step];
                     break;
-        
+
                 case 'bpm':
-          
+
                     pad = pads.indexOf(note);
 
                     for (let i = 0; i < 4; i++) {
@@ -418,11 +431,11 @@ function gridButtonPress(button: number) {
                         }
 
                         if (i === 0 && index !== -1) {
-                        
+
                             midiOutNotes[seq.displayTrack][0] = index;
 
                         } else if (i > 1 && index !== -1 && index < 10) {
-                        
+
                             notes[i - 1] = index;
                         }
                     }
@@ -449,33 +462,33 @@ function gridButtonPress(button: number) {
                     preset = [];
 
                     for (let i = 0; i < seq.tracks.length; i++) {
-                        
+
                         preset.push(seq.tracks[i]);
                     }
 
                     preset.push(seq.lastStep);
                     presets[pad] = preset;
-                    
+
                     if (!seq.presetWriting) {
-                    
+
                         seq.presetWriting = true;
                         fs.writeFile(
-                            __dirname + '/presets.json', 
-                            JSON.stringify(presets), 
+                            __dirname + '/presets.json',
+                            JSON.stringify(presets),
                             function(err) {
-                    
+
                                 if (err) {
-                            
+
                                     console.log(err);
                                     return;
                                 }
-                            
+
                                 console.log('preset saved');
                                 seq.presetWriting = false;
                             });
-                    
+
                     } else {
-                    
+
                         console.log('already writing to preset file');
                     }
                     break;
@@ -491,7 +504,7 @@ function gridButtonPress(button: number) {
 function fireExternalClock(): void {
 
     /*
-        // pull low 
+        // pull low
 
         gpio.clockOut.write(
             0,
@@ -506,35 +519,35 @@ function fireExternalClock(): void {
 
         clockoutTimer.setTimeout(
             () => {
-      
+
                 gpio.clockOut.write(
-                    1, 
+                    1,
                     (err) => {
-            
+
                         if (err) {
                             console.log(err);
                         }
                     });
-                }, 
-                '', 
+                },
+                '',
                 '5m');
         */
 }
 
-function handleClock(err, value): void {
-  
+function handleClock(err: any, value: any): void {
+
     if (err) {
-    
+
         console.log(err);
         return;
     }
 
     console.log("Midi clock @ " + midi.bpm);
-    
+
     // these only get updated once per beat
-    
-    keyboard.upate();
-    sequencer.update();
+
+    keyboard.update(display, midi);
+    sequencer.update(display, midi);
 
     // trigger external clock if running internally
 
@@ -554,8 +567,12 @@ function update():void {
     display.update();
 }
 
+// activate internal clock
+midi.startInternalClock();
+
 // start updates @ 30 fpx
 
 timer.setInterval(
     update,
-    '33m');
+    [timer],
+    "33ms");

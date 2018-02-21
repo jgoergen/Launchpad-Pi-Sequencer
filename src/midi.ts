@@ -1,40 +1,43 @@
-import * as fs from 'fs';
-import easymidi from "easymidi";
+// import easymidi from "easymidi";
 import defaults from "./defaults";
-import gpio from "./gpio";
+// import gpio from "./gpio";
 
-const midi: any = () => {
+export default class Midi {
 
-    let inputs: any;
-    let outputs: any;
-    let input: any;
-    let output: any;
-    let midiOut: any;
-    let channel: number;
-    let clockCallback: any;
-    let internalClock: boolean = false;
-    let externalClock: boolean = false;
-    let bpm: number = 120;
-    let lastClockTime: any;
+    inputs: any;
+    outputs: any;
+    input: any;
+    output: any;
+    midiOut: any;
+    channel: number;
+    clockCallback: any;
+    internalClock: boolean = false;
+    externalClock: boolean = true;
+    bpm: number = 0;
+    lastClockTime: any;
+    nanoSecondsPerBeat: number = 0;
 
-    function init(handleMidiNoteOn: any, handleMidiCCmessage: any, handleClock: any): void {
+    public init(handleMidiNoteOn: any, handleMidiCCmessage: any, handleClock: any): void {
 
-        channel = defaults.channel;
+        this.channel = defaults.channel;
 
         // autoconfigure midi inputs and outputs
 
-        inputs = easymidi.getInputs();
-        outputs = easymidi.getOutputs();
-        input = setupMidiIn(defaults.midiDeviceName, inputs);
-        output = setupMidiOut(defaults.midiDeviceName, outputs);
-        midiOut = makeMidiOutput(outputs);
-        clockCallback = handleClock;
-        lastClockTime = process.hrtime();
+        // inputs = easymidi.getInputs();
+        // outputs = easymidi.getOutputs();
+        this.input = this.setupMidiIn(defaults.midiDeviceName, this.inputs);
+        this.output = this.setupMidiOut(defaults.midiDeviceName, this.outputs);
+        this.midiOut = this.makeMidiOutput(this.outputs);
+        this.clockCallback = handleClock;
+        this.lastClockTime = process.hrtime();
 
         // handle button pushes
 
-        input.on("noteon", handleMidiNoteOn);
-        input.on("cc", handleMidiCCmessage);
+        if (this.input) {
+
+            this.input.on("noteon", handleMidiNoteOn);
+            this.input.on("cc", handleMidiCCmessage);
+        }
 
         /*
         // file data
@@ -46,25 +49,40 @@ const midi: any = () => {
 
         midiOutNotes = JSON.parse(fileData);
         */
+
+        // default bpm to 120
+        this.setBPM(120);
     }
 
-    function update(): void {
+    public update(): void {
 
-        if (internalClock) {
+        if (this.internalClock) {
 
             // has enough ms passed since the last clock message? if so, fire a midi update
 
-            if (process.hrtime(lastClockTime)[0] >= 60000 / bpm) {
+            if (process.hrtime(this.lastClockTime)[1] >= this.nanoSecondsPerBeat) {
 
-                lastClockTime = process.hrtime();
-                clockCallback();
+                this.lastClockTime = process.hrtime();
+                this.clockCallback();
             }
         }
     }
 
-    function setupMidiIn(device: string, inputs: any): any {
+    public setBPM(newBPM: number) :void {
+
+        this.bpm = newBPM;
+        this.nanoSecondsPerBeat = 1000 / (this.bpm / 60) * 1000000;
+    }
+
+    public setupMidiIn(device: string, inputs: any): any {
 
         console.log("Setting up Midi In");
+
+        if (!inputs || inputs.length < 1) {
+
+            console.log("No midi inputs found, exiting.");
+            return;
+        }
 
         let arr: any =
             inputs.filter(
@@ -73,7 +91,7 @@ const midi: any = () => {
 
         if (arr.length > 0) {
 
-            return new easymidi.Input(arr[0]);
+            return null; // new easymidi.Input(arr[0]);
 
         } else {
 
@@ -81,9 +99,15 @@ const midi: any = () => {
         }
     }
 
-    function setupMidiOut(device: string, outputs: any): any {
+    public setupMidiOut(device: string, outputs: any): any {
 
         console.log("Setting up Midi Out");
+
+        if (!outputs || outputs.length < 1) {
+
+            console.log("No midi outputs found, exiting.");
+            return;
+        }
 
         let arr: any =
             outputs.filter(
@@ -92,7 +116,7 @@ const midi: any = () => {
 
         if (arr.length > 0) {
 
-            return new easymidi.Output(arr[0]);
+            return null; // new easymidi.Output(arr[0]);
 
         } else {
 
@@ -100,7 +124,12 @@ const midi: any = () => {
         }
     }
 
-    function makeMidiOutput(outputs: any): any {
+    public makeMidiOutput(outputs: any): any {
+
+        if (!outputs || outputs.length < 1) {
+
+            return;
+        }
 
         let arr: any =
             outputs.filter(
@@ -110,7 +139,7 @@ const midi: any = () => {
         if (arr.length > 0) {
 
             console.log("midi output to device: " + arr[arr.length - 1]);
-            return new easymidi.Output(arr[arr.length - 1]);
+            return null; // new easymidi.Output(arr[arr.length - 1]);
 
         } else {
 
@@ -118,24 +147,25 @@ const midi: any = () => {
         }
     }
 
-    function startInternalClock(): void {
+    public startInternalClock(): void {
 
-        externalClock = true;
-        internalClock = false;
-        gpio.clockIn.watch(clockCallback);
+        this.externalClock = false;
+        this.internalClock = true;
+        // gpio.clockIn.watch(clockCallback);
     }
 
-    function stopInternalClock(): void {
+    public stopInternalClock(): void {
 
-        externalClock = false;
-        gpio.clockIn.unwatch();
+        this.externalClock = true;
+        this.internalClock = false;
+        // gpio.clockIn.unwatch();
     }
 
-    function sendNote(note: number, velocity: number, channel: number): void {
+    public sendNote(note: number, velocity: number, channel: number): void {
 
-        if (midiOut !== undefined) {
+        if (this.midiOut !== undefined) {
 
-            midiOut.send(
+            this.midiOut.send(
                 "noteon",
                 {
                     note,
@@ -145,13 +175,17 @@ const midi: any = () => {
         }
     }
 
-    return {
-        init,
-        update,
-        startInternalClock,
-        stopInternalClock,
-        sendNote
-    };
-};
+    public sendCC(controller: number, value: number, channel: number): void {
 
-export default midi;
+        if (this.midiOut !== undefined) {
+
+            this.midiOut.send(
+                "cc",
+                {
+                    controller,
+                    value,
+                    channel
+                });
+        }
+    }
+};

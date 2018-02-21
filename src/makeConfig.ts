@@ -1,12 +1,30 @@
-var fs = require('fs');
+import * as fs from "fs";
 
-json = [[0, '036'], [0, '038'], [0, '043'], [0, '050'], [0, '042'], [0, '046'], [0, '039'], [0, '049']];
-json = JSON.stringify(json);
+let data: Array<any> =
+    [
+        [0, "036"],
+        [0, "038"],
+        [0, "043"],
+        [0, "050"],
+        [0, "042"],
+        [0, "046"],
+        [0, "039"],
+        [0, "049"]
+    ];
 
-fs.writeFile('./midiConfig.json', json, function(err) {
-  if (err) {
-    console.log(err);
-  } else {
-    console.log('success');
-  }
-});
+let jsonString: string = JSON.stringify(data);
+
+fs.writeFile(
+    "./midiConfig.json",
+    jsonString,
+    function(err: any): void {
+
+        if (err) {
+
+            console.log(err);
+
+        } else {
+
+            console.log("success");
+        }
+    });

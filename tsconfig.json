@@ -4,8 +4,9 @@
         "noImplicitAny": true,
         "removeComments": true,
         "preserveConstEnums": true,
-        "outFile": "./dist/app.js",
-        "sourceMap": true
+        "outDir": "./dist/",
+        "sourceMap": true,
+        "watch": false
     },
     "include": [
         "src/**/*"
