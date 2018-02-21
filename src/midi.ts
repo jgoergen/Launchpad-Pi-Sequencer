@@ -17,7 +17,7 @@ export default class Midi {
     lastClockTime: any;
     nanoSecondsPerBeat: number = 0;
 
-    public init(handleMidiNoteOn: any, handleMidiCCmessage: any, handleClock: any): void {
+    public async init(handleMidiNoteOn: any, handleMidiCCmessage: any, handleClock: any): Promise<void> {
 
         this.channel = defaults.channel;
 
@@ -68,7 +68,7 @@ export default class Midi {
         }
     }
 
-    public setBPM(newBPM: number) :void {
+    public setBPM(newBPM: number): void {
 
         this.bpm = newBPM;
         this.nanoSecondsPerBeat = 1000 / (this.bpm / 60) * 1000000;

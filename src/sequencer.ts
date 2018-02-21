@@ -14,12 +14,14 @@ export default class Sequencer {
     lastStep: Array<number>;
     midiOutNotes: any;
     tracks: Array<any>;
+    midiRef: Midi;
+    displayRef: Display;
 
-    public init(): void {
+    public async init(display: Display, midi: Midi): Promise<void> {
 
         // initial state
         this.running = false;
-        this.toggle = true,
+        this.toggle = true;
         this.mode = "step";
         this.tracksDisplayed = 1;
         this.scrollPage = 0;
@@ -37,9 +39,11 @@ export default class Sequencer {
             defaults.emptyTrackData.slice()
         ];
         this.midiOutNotes = defaults.midiOutNotes.slice();
+        this.displayRef = display;
+        this.midiRef = midi;
     }
 
-    public update(display: Display, midi: Midi): void {
+    public update(): void {
 
         if (this.running) {
 
@@ -66,7 +70,7 @@ export default class Sequencer {
 
             for (let i: number = 0; i < triggersToSend.length; i++) {
 
-                midi.sendNote(
+                this.midiRef.sendNote(
                     + this.midiOutNotes[triggersToSend[i]][1],
                     127,
                     this.midiOutNotes[triggersToSend[i]][0]);

@@ -6,28 +6,36 @@ export default class Keyboard {
     running: boolean;
     toggle: boolean;
     mode: string;
+    midiRef: Midi;
+    displayRef: Display;
 
-    public init(): void {
+    public async init(display: Display, midi: Midi): Promise<void> {
 
         this.running = false;
         this.toggle = true;
         this.mode = "normal";
+        this.displayRef = display;
+        this.midiRef = midi;
     }
 
-    public update(display: Display, midi: Midi): void {
+    public update(): void {
 
         if (this.running) {
 
             if (this.toggle) {
 
-                display.setPad(1, display.brightRunner);
+                this.displayRef.setPad(1, this.displayRef.brightRunner);
 
             } else {
 
-                display.setPad(1, display.darkRunner);
+                this.displayRef.setPad(1, this.displayRef.darkRunner);
             }
 
             this.toggle = !this.toggle;
         }
+    }
+
+    public handleNote(note: any) {
+
     }
 };

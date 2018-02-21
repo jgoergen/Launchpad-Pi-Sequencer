@@ -1,34 +1,44 @@
 "use strict";
-exports.__esModule = true;
-var defaults_1 = require("./defaults");
-var Sequencer = (function () {
-    function Sequencer() {
-    }
-    Sequencer.prototype.init = function () {
-        this.running = false;
-        this.toggle = true,
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const defaults_1 = require("./defaults");
+class Sequencer {
+    init(display, midi) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.running = false;
+            this.toggle = true;
             this.mode = "step";
-        this.tracksDisplayed = 1;
-        this.scrollPage = 0;
-        this.displayTrack = 0;
-        this.curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
-        this.lastStep = [63, 63, 63, 63, 63, 63, 63, 63];
-        this.tracks = [
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice(),
-            defaults_1["default"].emptyTrackData.slice()
-        ];
-        this.midiOutNotes = defaults_1["default"].midiOutNotes.slice();
-    };
-    Sequencer.prototype.update = function (display, midi) {
+            this.tracksDisplayed = 1;
+            this.scrollPage = 0;
+            this.displayTrack = 0;
+            this.curStep = [-1, -1, -1, -1, -1, -1, -1, -1];
+            this.lastStep = [63, 63, 63, 63, 63, 63, 63, 63];
+            this.tracks = [
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice(),
+                defaults_1.default.emptyTrackData.slice()
+            ];
+            this.midiOutNotes = defaults_1.default.midiOutNotes.slice();
+            this.displayRef = display;
+            this.midiRef = midi;
+        });
+    }
+    update() {
         if (this.running) {
-            var triggersToSend = [];
-            for (var i = 0; i < 8; i++) {
+            let triggersToSend = [];
+            for (let i = 0; i < 8; i++) {
                 this.curStep[i] =
                     this.curStep[i] >= this.lastStep[i] ?
                         0 :
@@ -37,14 +47,13 @@ var Sequencer = (function () {
                     triggersToSend.push(i);
                 }
             }
-            for (var i = 0; i < triggersToSend.length; i++) {
-                midi.sendNote(+this.midiOutNotes[triggersToSend[i]][1], 127, this.midiOutNotes[triggersToSend[i]][0]);
+            for (let i = 0; i < triggersToSend.length; i++) {
+                this.midiRef.sendNote(+this.midiOutNotes[triggersToSend[i]][1], 127, this.midiOutNotes[triggersToSend[i]][0]);
             }
             this.toggle = !this.toggle;
         }
-    };
-    return Sequencer;
-}());
-exports["default"] = Sequencer;
+    }
+}
+exports.default = Sequencer;
 ;
 //# sourceMappingURL=Sequencer.js.map

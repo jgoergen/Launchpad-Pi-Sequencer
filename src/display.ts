@@ -42,7 +42,7 @@ export default class Sequencer {
         controls: [0, 0, 0, 0, 0, 0, 0, 0]
     };
 
-    public init(midi: Midi): void {
+    public async init(midi: Midi): Promise<void> {
 
         this.midiRef = midi;
     }

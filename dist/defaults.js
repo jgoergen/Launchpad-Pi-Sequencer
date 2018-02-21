@@ -1,14 +1,14 @@
 "use strict";
-exports.__esModule = true;
-var generateEmptyTrackData = function () {
-    var result = [];
-    for (var i = 0; i < 64; i++) {
+Object.defineProperty(exports, "__esModule", { value: true });
+const generateEmptyTrackData = () => {
+    let result = [];
+    for (let i = 0; i < 64; i++) {
         result.push(false);
     }
     return result;
 };
-var generateEmptyPresetData = function () {
-    var result = [
+const generateEmptyPresetData = () => {
+    let result = [
         generateEmptyTrackData(),
         generateEmptyTrackData(),
         generateEmptyTrackData(),
@@ -21,14 +21,14 @@ var generateEmptyPresetData = function () {
     ];
     return result;
 };
-var generateEmptyPresetsData = function () {
-    var result = [];
-    for (var i = 0; i < 64; i++) {
+const generateEmptyPresetsData = () => {
+    let result = [];
+    for (let i = 0; i < 64; i++) {
         result.push(generateEmptyPresetData());
     }
     return result;
 };
-var defaults = {
+const defaults = {
     midiDeviceName: "Launchpad",
     dark: 0,
     darkRunner: 1,
@@ -83,5 +83,5 @@ var defaults = {
         generateEmptyPresetsData()
     ]
 };
-exports["default"] = defaults;
+exports.default = defaults;
 //# sourceMappingURL=defaults.js.map
