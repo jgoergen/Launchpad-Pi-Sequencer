@@ -57,7 +57,7 @@ export default class System {
         await this.keyboard.init(this.display, this.midi);
         await this.sequencer.init(this.display, this.midi);
 
-        this.presets = this.loadPresets();
+        this.presets = await this.loadPresets();
     }
 
     public start(): void {
@@ -75,7 +75,7 @@ export default class System {
             200);
     }
 
-    public loadPresets():any {
+    public async loadPresets():Promise<any> {
 
         let presetFile: string = __dirname + "/presets.json";
 
