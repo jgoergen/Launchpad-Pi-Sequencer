@@ -1,19 +1,20 @@
 {
-  "name": "BitBytePuzzleBox",
+  "name": "launchpadSeq",
   "version": "0.0.1",
-  "description": "A Puzzle Box",
-  "main": "./dist/App.js",
+  "description": "drum sequencer for raspberry pi with novation launchpad as controller",
+  "main": "./dist/app.js",
   "scripts": {
     "compile": "tsc",
-    "start": "node dist/App.js",
+    "start": "node dist/app.js",
     "dev": "nodemon -e ts  --exec \"npm run compile && npm run start\""
   },
-  "author": "Jeff Goergen",
+  "author": "Trevor Baker",
   "license": "ISC",
   "dependencies": {
     "nanotimer": "^0.3.14",
     "typescript": "^2.7.2",
-    "onoff": "^1.0.4"
+    "onoff": "^1.0.4",
+    "easymidi": "0.0.2"
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
